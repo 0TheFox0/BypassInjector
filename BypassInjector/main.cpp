@@ -110,13 +110,32 @@ bool FindProcess()
 	}
 	return false;
 }
-
+BOOL IsElevated( ) {
+	BOOL fRet = FALSE;
+	HANDLE hToken = NULL;
+	if( OpenProcessToken( GetCurrentProcess( ),TOKEN_QUERY,&hToken ) ) {
+		TOKEN_ELEVATION Elevation;
+		DWORD cbSize = sizeof( TOKEN_ELEVATION );
+		if( GetTokenInformation( hToken, TokenElevation, &Elevation, sizeof( Elevation ), &cbSize ) ) {
+			fRet = Elevation.TokenIsElevated;
+		}
+	}
+	if( hToken ) {
+		CloseHandle( hToken );
+	}
+	return fRet;
+}
 int main()
 {
 	cout << "Bypass injector:" << endl;
 	cout << "    If you're reading this, you're as lazy as me xD" << endl;
 	cout << "                                           \"TheFox\"" << endl << endl ;
-	if(StartProcess())
+	if(!IsElevated())
+	{
+		cout << "Run me as administrator!" << endl;
+		system("pause");
+	}
+	else if(StartProcess())
 	{
 		cout << "MapleStory started!" << endl;
 
